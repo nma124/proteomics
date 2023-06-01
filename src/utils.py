@@ -148,7 +148,7 @@ def geo_mean(iterable):
     a = np.array(iterable)
     return (a**(1.0/len(a))).prod()
 
-def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom_normalize=True, use_common_var_2=False):
+def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom_normalize=True, use_common_var_2=False, debug=False):
     
     df = data.copy()
     
@@ -171,6 +171,14 @@ def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geo
 
     var_var_df = pd.DataFrame(index=var_1_list, columns=var_1_list)
     
+    if debug:
+        var_pairs_df = pd.DataFrame(index=var_2_pairs_permuted, columns=var_1_pairs)
+        var_pairs_df.columns = var_pairs_df.columns.map('-'.join)
+        var_pairs_df.index = var_pairs_df.index.map('-'.join)
+
+        var_pairs_mean_df =  pd.DataFrame(index=var_pairs_df.index, columns=var_pairs_df.columns)
+
+
 
     for i, var_1_pair in enumerate(var_1_pairs):
         
@@ -218,19 +226,25 @@ def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geo
 
                     var_2_L = var_2_L.prod()
                     var_2_lhs.append(var_2_L)
+
+                    if debug:
+                        var_pairs_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = var_2_L
+                        var_pairs_mean_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = (mu, sigma)
+
+    
     
             
         var_2_lhs = np.array(var_2_lhs)
         var_2_lhs = var_2_lhs[~np.isnan(var_2_lhs)]
-#         print(var_2_lhs)
 
-        # lh = geo_mean(var_2_lhs)
         lh =  np.mean(var_2_lhs)
         var_var_df.loc[var_1_pair[0], var_1_pair[1]] = lh
-        
+    if debug:
+        print('== lh values== \n',var_pairs_df)
+        print('== mean and std. values== \n',var_pairs_mean_df)  
     return var_var_df
 
-def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom_normalize=True, use_common_var_2=False):
+def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom_normalize=True, use_common_var_2=False, debug=False):
     
     df = data.copy()
     
@@ -238,13 +252,15 @@ def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom
     if use_common_var_2 is True:
         common_var_2s = get_var_commons(ref_var_idx=var_2_idx, common_var_idx=var_str_idx, data=df)
         df = filter_var_subset_df(var_list=common_var_2s, var_idx=var_str_idx, data=df).copy()
-        print(common_var_2s)
+        
+        if debug:
+            print(common_var_2s)
 
     # check if there is a variable 2 to filter 
     if var2_pair is not None:
         df = get_var_pair_df(var2_pair, df)
 
-    var_1_pairs = get_var_pair(var_idx=var_str_idx, data=df, include_permutation=True)
+    var_1_pairs = get_var_pair(var_idx=var_str_idx, data=df, include_permutation=False)
     var_2_pairs_combination = get_var_pair(var_idx=var_2_idx, data=df, include_permutation=False)
     var_2_pairs_permuted = get_var_pair(var_idx=var_2_idx, data=df, include_permutation=True)
     
@@ -252,18 +268,24 @@ def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom
 
     var_var_df = pd.DataFrame(index=var_1_list, columns=var_1_list)
     
-    
+    if debug:
+        var_pairs_df = pd.DataFrame(index=var_2_pairs_permuted, columns=var_1_pairs)
+        var_pairs_df.columns = var_pairs_df.columns.map('-'.join)
+        var_pairs_df.index = var_pairs_df.index.map('-'.join)
+        
+        var_pairs_mean_df =  pd.DataFrame(index=var_pairs_df.index, columns=var_pairs_df.columns)
+
 
 
     for i, var_1_pair in enumerate(var_1_pairs):
         
         corr_df_var_1_xy = get_var_pair_df((var_1_pair[0], var_1_pair[1]), data=df)
-#         corr_df_var_1_y = get_var_pair_df((var_1_pair[1], var_1_pair[1]), data=df)
-        
+     
         if var_1_pair[0] != var_1_pair[1]:
             var_2_pairs = var_2_pairs_permuted
         else:
-            var_2_pairs = var_2_pairs_combination
+          var_2_pairs = var_2_pairs_combination
+        # var_2_pairs = var_2_pairs_combination
         
         var_2_lhs = []
         for j, var_2_pair in enumerate(var_2_pairs):
@@ -271,13 +293,9 @@ def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom
             corr_df_var_1_xy_var_2_x = get_var_pair_df((var_2_pair[0], var_2_pair[0]), data=corr_df_var_1_xy).values
             corr_df_var_1_xy_var_2_y = get_var_pair_df((var_2_pair[1], var_2_pair[1]), data=corr_df_var_1_xy).values
             
-            # get rid of diagonals ( will typically have ones)
-#             corr_df_var_1_xy_var_2_x = corr_df_var_1_xy_var_2_x[corr_df_var_1_xy_var_2_x!=1]
-#             corr_df_var_1_xy_var_2_y = corr_df_var_1_xy_var_2_y[corr_df_var_1_xy_var_2_y!=1]
 
              # take upper diagonal if same organs
             if var_1_pair[0] == var_1_pair[1]:
-#                 print(corr_df_var_1_xy_var_2_x)
                 corr_df_var_1_xy_var_2_x = corr_df_var_1_xy_var_2_x[np.tril_indices_from(corr_df_var_1_xy_var_2_x)]
                 corr_df_var_1_xy_var_2_y = corr_df_var_1_xy_var_2_y[np.tril_indices_from(corr_df_var_1_xy_var_2_y)]
 
@@ -289,10 +307,11 @@ def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom
                 sigma = corr_df_var_1_xy_var_2_x.std(ddof=1)  # sigma can be zero if all values are same
                 x = corr_df_var_1_xy_var_2_y
 
-                var_1_pair_to_check = (('lung', 'kidney'), ('kidney', 'kidney')); var_2_pair_to_check = (('AJ', 'BL'), ('BL', 'BL'))
-                
-                if var_1_pair in var_1_pair_to_check and var_2_pair in var_2_pair_to_check:
-                    print (f"mu for {var_1_pair} and {var_2_pair} = {mu} and std = {sigma}")
+                if debug:
+                    var_1_pair_to_check = (('lung', 'kidney'), ('kidney', 'kidney')); var_2_pair_to_check = (('AJ', 'BL'), ('BL', 'BL'))
+                    
+                    if var_1_pair in var_1_pair_to_check and var_2_pair in var_2_pair_to_check:
+                        print (f"mu for {var_1_pair} and {var_2_pair} = {mu} and std = {sigma}")
                 
                 if sigma != 0:
                 
@@ -303,14 +322,22 @@ def get_organ_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geom
 
                     var_2_L = var_2_L.prod()
                     var_2_lhs.append(var_2_L)
+
+                    if debug:
+                        var_pairs_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = var_2_L
+                        var_pairs_mean_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = (mu, sigma)
+
     
             
         var_2_lhs = np.array(var_2_lhs)
         var_2_lhs = var_2_lhs[~np.isnan(var_2_lhs)]
         
-        # lh = geo_mean(var_2_lhs)
         lh =  np.mean(var_2_lhs)
         var_var_df.loc[var_1_pair[0], var_1_pair[1]] = lh
+    
+    if debug:
+        print('== lh values== \n',var_pairs_df)
+        print('== mean and std. values== \n',var_pairs_mean_df)
         
     return var_var_df
 
@@ -347,7 +374,7 @@ def get_ranking(raw_df_path, save_path):
     data_hr_pair_mat.close()
     
 
-def get_organ_var_likelihood_debug(var_str_idx, var_2_idx, data,  var2_pair=None, geom_normalize=True, use_common_var_2=False):
+
     
     df = data.copy()
     
@@ -374,36 +401,23 @@ def get_organ_var_likelihood_debug(var_str_idx, var_2_idx, data,  var2_pair=None
     var_pairs_df.columns = var_pairs_df.columns.map('-'.join)
     var_pairs_df.index = var_pairs_df.index.map('-'.join)
     
-    
     var_pairs_mean_df =  pd.DataFrame(index=var_pairs_df.index, columns=var_pairs_df.columns)
-
 
     for i, var_1_pair in enumerate(var_1_pairs):
         
         corr_df_var_1_xy = get_var_pair_df((var_1_pair[0], var_1_pair[1]), data=df)
-#         corr_df_var_1_y = get_var_pair_df((var_1_pair[1], var_1_pair[1]), data=df)
-        
-#         if var_1_pair[0] != var_1_pair[1]:
-#             var_2_pairs = var_2_pairs_permuted
-#         else:
-#             var_2_pairs = var_2_pairs_combination
+
         var_2_pairs = var_2_pairs_permuted
     
         var_2_lhs = []
         for j, var_2_pair in enumerate(var_2_pairs):
             
-            
-
             corr_df_var_1_xy_var_2_x = get_var_pair_df((var_2_pair[0], var_2_pair[0]), data=corr_df_var_1_xy).values
             corr_df_var_1_xy_var_2_y = get_var_pair_df((var_2_pair[1], var_2_pair[1]), data=corr_df_var_1_xy).values
             
-            # get rid of diagonals ( will typically have ones)
-#             corr_df_var_1_xy_var_2_x = corr_df_var_1_xy_var_2_x[corr_df_var_1_xy_var_2_x!=1]
-#             corr_df_var_1_xy_var_2_y = corr_df_var_1_xy_var_2_y[corr_df_var_1_xy_var_2_y!=1]
 
              # take upper diagonal if same organs
             if var_1_pair[0] == var_1_pair[1]:
-#                 print(corr_df_var_1_xy_var_2_x)
                 corr_df_var_1_xy_var_2_x = corr_df_var_1_xy_var_2_x[np.tril_indices_from(corr_df_var_1_xy_var_2_x)]
                 corr_df_var_1_xy_var_2_y = corr_df_var_1_xy_var_2_y[np.tril_indices_from(corr_df_var_1_xy_var_2_y)]
 
@@ -431,9 +445,6 @@ def get_organ_var_likelihood_debug(var_str_idx, var_2_idx, data,  var2_pair=None
                     var_2_lhs.append(var_2_L)
                     
                     
-#                     if j ==1:
-#                         print(var_2_pair)
-#                     print(var_2_pair, var_1_pair)
                     var_pairs_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = var_2_L
                     var_pairs_mean_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = (mu, sigma)
 
