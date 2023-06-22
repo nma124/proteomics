@@ -1,0 +1,32 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath,amssymb,amsfonts, mathtools}
+
+\title{likelihood_draft}
+\author{aroogzbaba1 }
+\date{June 2023}
+
+\begin{document}
+
+% \maketitle
+
+\section{Likelihood Computation}
+
+To determine the relationship between organs, an organ-organ likelihood comparison was carried out using correlation datasets between organs.
+These organ-organ correlation datasets have been collected across multiple strains including AJ, BL, NOD and SJL.
+For each organ pair (e.g. bone and brain),  the input datasets consists of repeated pairwise correlations across different mouse strains.
+
+The overall likelihood between two organs is computed in steps that involve first computing likelihoods for different strain combinations, and then aggregating the results. %This is described in detail as follows:
+%This input dataset constitute a matrix of values from which a likelihood value is obtained. This likelihood value is computed as follows:
+Considering an organ pair ($o_i$ and $o_j$), a matrix $D_{o_i-o_j}$  consists of the correlation values between the organs $i$ and $j$ across different strains. Then for each strain pair, $a$ and $b$, a likelihood value $L_{S_{ab}}$ is obtained from $D_{o_i-o_j}(a)$  and $D_{o_i-o_j}(b)$  which are subsets of $D_{o_i-o_j}$ corresponding to strains $a$ and $b$ respectively.
+  \begin{align}
+      L_{S_{ab}}  = \prod_{i=1}^N (e^{-(\frac{(X_{ai} - \mu_{b})^2}{2\sigma_{b}^2})})^{1/N}
+  \end{align}
+where $N$ is the number of individual correlation values, $X_{ai}$ = $D_{o_i-o_j}(a)$ which is the subset of the organ-organ correlation values specific to strain $a$, and $\mu_{b}$ and $\sigma_{sb}$ represent the mean and standard deviation of the elements in $D_{o_i-o_j}(b)$. The overall likelihood for organ pairs $i$ and $j$, $L_{o_i-o_j}$ is obtained by taking an average of the individual $L_{S_{ab}}$ obtained for all strain combinations,
+\begin{align}
+    L_{o_i-o_j} = \frac{1}{N_{S_{ab}}} \sum_{a \ne b, \in S} L_{S_{ab}}
+\end{align}
+where $N_{S_{ab}}$ is the number of unique strain combinations.
+A table of likelihood values between organs is then obtained by computing $L_{o_i-o_j}$ for all possible organ pairs
+
+\end{document}

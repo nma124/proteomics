@@ -161,7 +161,7 @@ def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geo
     if var2_pair is not None:
         df = get_var_pair_df(var2_pair, df)
 
-    var_1_pairs = get_var_pair(var_idx=var_str_idx, data=df, include_permutation=True)
+    var_1_pairs = get_var_pair(var_idx=var_str_idx, data=df, include_permutation=False)
 #     print(var_1_pairs)
     var_2_pairs_combination = get_var_pair(var_idx=var_2_idx, data=df, include_permutation=False)
     var_2_pairs_permuted = get_var_pair(var_idx=var_2_idx, data=df, include_permutation=True)
