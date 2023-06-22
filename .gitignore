@@ -29,6 +29,17 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Latex
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.synctex.gz
+*.synctex.gz(busy)
+
+
+
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

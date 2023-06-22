@@ -12,9 +12,12 @@
 
 \section{Likelihood Computation}
 
-To determine the relationship between organs, an organ-organ likelihood comparison was carried out using correlation datasets between organs.
-These organ-organ correlation datasets have been collected across multiple strains including AJ, BL, NOD and SJL.
-For each organ pair (e.g. bone and brain),  the input datasets consists of repeated pairwise correlations across different mouse strains.
+To determine the relationship between organs, particularly their potential dynamics against different genetic backgrounds,  an organ-organ likelihood comparison was carried out using correlation datasets between organs among four distinct genetic backgrounds, including AJ, BL, NOD and SJL.
+Up to 13 organs from each of the four strains were first characterized by their individual proteomes. Each oorgan type also included sets of biological and technical replicates varied from 2 to 14. 
+% describe how replicates are treated
+A pairwise comparison  was carried out for every organ proteome, and the obtained Pearson correlation coefficient matrix was used as the input for the described organ dynamic network analysis herein.
+%These organ-organ correlation datasets have been collected across multiple strains including AJ, BL, NOD and SJL.
+For each organ pair (e.g. bone and brain),  the input dataset consists of replicated pairwise correlations across different mouse strains.
 
 The overall likelihood between two organs is computed in steps that involve first computing likelihoods for different strain combinations, and then aggregating the results. %This is described in detail as follows:
 %This input dataset constitute a matrix of values from which a likelihood value is obtained. This likelihood value is computed as follows:
@@ -26,7 +29,7 @@ where $N$ is the number of individual correlation values, $X_{ai}$ = $D_{o_i-o_j
 \begin{align}
     L_{o_i-o_j} = \frac{1}{N_{S_{ab}}} \sum_{a \ne b, \in S} L_{S_{ab}}
 \end{align}
-where $N_{S_{ab}}$ is the number of unique strain combinations.
-A table of likelihood values between organs is then obtained by computing $L_{o_i-o_j}$ for all possible organ pairs
+where $N_{S_{ab}}$ is the number of unique strain combinations. 
+A table of likelihood values between organs is then obtained by computing $L_{o_i-o_j}$ for all possible organ pairs. Since the likelihood results between organs are symmetric ($L_{o_i-o_j} = L_{o_j-o_i}$), only the upper or lower diagonal is considered.
 
 \end{document}
