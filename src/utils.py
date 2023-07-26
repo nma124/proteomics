@@ -231,9 +231,6 @@ def get_strain_var_likelihood(var_str_idx, var_2_idx, data,  var2_pair=None, geo
                         var_pairs_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = var_2_L
                         var_pairs_mean_df.loc['-'.join(var_2_pair), '-'.join(var_1_pair)] = (mu, sigma)
 
-    
-    
-            
         var_2_lhs = np.array(var_2_lhs)
         var_2_lhs = var_2_lhs[~np.isnan(var_2_lhs)]
 
