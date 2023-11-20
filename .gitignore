@@ -29,6 +29,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# image
+*.png
+*.PNG
+
 # Latex
 *.aux
 *.bbl
