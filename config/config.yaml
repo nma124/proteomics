@@ -1,0 +1,45 @@
+# Configuration for Proteomics PRM Data Processing
+
+# Data processing settings
+processing:
+  min_area_threshold: 0  # Minimum peak area to consider
+  r2_threshold: 0.0      # Minimum R² for quality filtering
+  cv_threshold: 1.0      # Maximum coefficient of variation allowed
+
+# Input file settings
+input:
+  skyline:
+    required_columns:
+      - "Peptide"
+      - "Protein" 
+      - "Replicate"
+      - "Precursor Mz"
+      - "Precursor Charge"
+      - "Product Mz"
+      - "Product Charge"
+      - "Fragment Ion"
+      - "Area"
+  
+  dilution:
+    required_columns:
+      - "Peptides"
+    concentration_columns:
+      - "D0  (ng/mL)"
+      - "D1 (ng/mL)"
+      - "D2 (ng/mL)"
+      - "D3 (ng/mL)"
+      - "D4 (ng/mL)"
+      - "D5 (ng/mL)"
+      - "D6 (ng/mL)"
+      - "D7 (ng/mL)"
+
+# Output settings
+output:
+  include_qc_plots: false
+  save_intermediate_files: false
+  precision: 6  # Decimal places for numerical values
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
