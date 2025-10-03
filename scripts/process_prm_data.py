@@ -56,15 +56,21 @@ def get_peptide_dilution_comb(row):
     dilution = get_dilution_from_replicate(rep_string=replicate)
     return peptide + '_' + dilution
 
-def get_rep_plot_cat(row):
-    """Get the plot category."""
-    replicate = row['replicate']
-    peptide = row['peptide']
-    fragment_ion = row['fragment ion']
 
-    rep_elements = replicate.split('_')[0:3]
-    cat_name = [peptide] + [fragment_ion]  # + rep_elements
-    cat_name = '_'.join(cat_name)
+def get_fragment_ion_with_charge(row):
+    """Return fragment ion name annotated with product charge (e.g., b7_2+)."""
+    frag = row.get('fragment ion')
+    pc = row.get('product charge')
+    try:
+        z = int(float(pc))
+        return f"{frag}_{z}+"
+    except Exception:
+        return frag
+def get_rep_plot_cat(row):
+    """Get the plot category (peptide + fragment ion with charge)."""
+    peptide = row['peptide']
+    fragment_ion_charged = get_fragment_ion_with_charge(row)
+    cat_name = '_'.join([peptide, fragment_ion_charged])
     return cat_name
 
 def get_linear_fit(data: pd.DataFrame, plot_cat: str):
@@ -256,7 +262,10 @@ def process_prm_data(skyline_file: str, dilution_file: str, output_file: str):
     
     print(f"After merging and cleaning: {df_area_ratio_conc.shape[0]} rows")
     
-    # Create plot categories
+    # Update fragment ion names to include charge for clarity in outputs
+    df_area_ratio_conc['fragment ion'] = df_area_ratio_conc.apply(get_fragment_ion_with_charge, axis=1)
+
+    # Create plot categories (now split by charge as well)
     df_area_ratio_conc['plot_cat'] = df_area_ratio_conc.apply(get_rep_plot_cat, axis=1)
     df_area_ratio_conc['plot_cat_grp'] = df_area_ratio_conc['plot_cat'].apply(lambda x: '_'.join(x.split('_')[:-1]))
     df_area_ratio_conc['order_comp'] = df_area_ratio_conc['replicate'].apply(lambda x: x.split('_')[-1])
