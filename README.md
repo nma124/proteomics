@@ -191,37 +191,9 @@ The pipeline includes several QC metrics:
 - **Coefficients of variation**: Measure of replicate consistency
 - **Data completeness**: Tracking of filtered vs retained data points
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🐛 Issues and Support
-
-If you encounter any issues or have questions:
-
-1. Check the [examples](examples/) directory for usage patterns
-2. Review the [documentation](docs/) for detailed guides
-3. Open an issue on the GitHub repository
-
-## 📚 Citation
-
-If you use this tool in your research, please cite:
-
-```
-Proteomics PRM Data Processing Tool
-Version 1.0.0
-[Your Institution/Lab]
-```
-
----
 
 **Note**: This tool was developed for processing Skyline PRM export data in proteomics workflows. It has been tested with the heavy_1st dataset and similar experimental designs involving heavy peptide dilution series.
 
