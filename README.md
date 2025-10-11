@@ -9,7 +9,7 @@ A comprehensive toolkit for processing Skyline PRM (Parallel Reaction Monitoring
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone <repository-url](https://github.com/nma124/proteomics>
 cd proteomics
 
 # Install dependencies
