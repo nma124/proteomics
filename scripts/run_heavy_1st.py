@@ -11,18 +11,27 @@ from .process_prm_data import process_prm_data
 def main():
     """Run the processing pipeline with the heavy_1st input file."""
     
-    # Define file paths
-    skyline_file = "heavy_1st_expanded_D0_op_AHS_3+_1+_2+_combined_w0.csv"
-    dilution_file = "data/raw/peggy_2/peptide_dilution_conc_peggy.csv"
-    output_file = "heavy_1st_processed_output.csv"
+    # Define file paths relative to project root (data/input and data/output)
+    project_root = pathlib.Path(__file__).resolve().parent.parent
+    input_dir = project_root / "data" / "input"
+    output_dir = project_root / "data" / "output"
+
+    skyline_file = input_dir / "heavy_1st_expanded_D0_op_AHS_3+_1+_2+_combined_w0.csv"
+    dilution_file = input_dir / "peptide_dilution_conc_peggy.csv"
+    output_file = output_dir / "heavy_1st_processed_output.csv"
+
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     # Check if input files exist
-    if not pathlib.Path(skyline_file).exists():
+    if not skyline_file.exists():
         print(f"Error: Skyline data file not found: {skyline_file}")
+        print("Hint: Place the file in data/input or update the path accordingly.")
         return 1
     
-    if not pathlib.Path(dilution_file).exists():
+    if not dilution_file.exists():
         print(f"Error: Dilution data file not found: {dilution_file}")
+        print("Hint: Place the file in data/input or update the path accordingly.")
         return 1
     
     print(f"Processing {skyline_file} with dilution data from {dilution_file}")
@@ -31,7 +40,7 @@ def main():
     
     # Process the data
     try:
-        result_df = process_prm_data(skyline_file, dilution_file, output_file)
+        result_df = process_prm_data(str(skyline_file), str(dilution_file), str(output_file))
         
         # Print summary statistics
         print(f"\n=== PROCESSING COMPLETE ===")
