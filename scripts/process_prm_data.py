@@ -13,6 +13,7 @@ import numpy as np
 from sklearn import linear_model, metrics
 import pathlib
 import warnings
+import re
 
 # Suppress sklearn warnings for cleaner output
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -227,12 +228,49 @@ def process_prm_data(skyline_file: str, dilution_file: str, output_file: str):
     # Load peptide dilution concentrations
     print("Loading peptide dilution concentrations...")
     df_peptide_dilution_conc = pd.read_csv(dilution_file)
-    
+
+    # Normalise peptide column name for compatibility across templates
+    peptide_col_candidates = [col for col in df_peptide_dilution_conc.columns
+                              if col.strip().lower() == 'peptides']
+    if not peptide_col_candidates:
+        raise ValueError("Peptide dilution file must contain a 'Peptides' column")
+    peptide_col = peptide_col_candidates[0]
+    if peptide_col != 'Peptides':
+        df_peptide_dilution_conc = df_peptide_dilution_conc.rename(columns={peptide_col: 'Peptides'})
+
+    # Detect dilution columns automatically to support datasets with fewer dilutions
+    dilution_pattern = re.compile(r'^D\d+\s*\(ng/mL\)$', re.IGNORECASE)
+    dilution_cols = []
+    rename_map = {}
+    for col in df_peptide_dilution_conc.columns:
+        if col == 'Peptides':
+            continue
+        col_normalised = ' '.join(col.split())
+        if dilution_pattern.match(col_normalised):
+            canonical_name = re.sub(r'NG/ML', 'ng/mL', col_normalised.upper())
+            dilution_cols.append(canonical_name)
+            if canonical_name != col:
+                rename_map[col] = canonical_name
+
+    if rename_map:
+        df_peptide_dilution_conc = df_peptide_dilution_conc.rename(columns=rename_map)
+
+    if not dilution_cols:
+        raise ValueError(
+            "Could not identify any dilution columns matching the pattern 'D# (ng/mL)' in the peptide dilution file"
+        )
+
+    # Ensure dilution columns are sorted numerically (D0, D1, ...)
+    def dilution_sort_key(name: str):
+        match = re.search(r'D(\d+)', name)
+        return int(match.group(1)) if match else float('inf')
+
+    dilution_cols = sorted(set(dilution_cols), key=dilution_sort_key)
+
     # Reshape the dilution data
     df_peptide_dilution_conc = df_peptide_dilution_conc.melt(
         id_vars='Peptides',
-        value_vars=['D1 (ng/mL)', 'D2 (ng/mL)', 'D3 (ng/mL)', 'D4 (ng/mL)', 
-                   'D5 (ng/mL)', 'D6 (ng/mL)', 'D7 (ng/mL)', 'D0  (ng/mL)'],
+        value_vars=dilution_cols,
         var_name='dilution',
         value_name='heavy_conc'
     )
