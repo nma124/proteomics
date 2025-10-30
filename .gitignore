@@ -178,3 +178,11 @@ cython_debug/
 #.idea/
 
 .zip
+
+# Web interface
+web/node_modules/
+web/dist/
+web/.vite/
+web/package-lock.json
+api/uploads/
+api/results/
