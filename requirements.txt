@@ -17,3 +17,8 @@ sphinx>=4.0.0
 matplotlib==3.3.4
 numpy==1.20.2
 pandas==1.2.4
+
+# Web API dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
