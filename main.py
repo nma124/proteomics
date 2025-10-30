@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-Main entry point for Proteomics PRM Data Processing
+Unified Proteomics PRM Data Processing CLI
 
-This script provides a command-line interface for processing Skyline PRM export data.
+General-purpose interface that automatically detects and processes:
+- Heavy/Light paired peptide formats
+- Single peptide intensity formats (with/without conditions)
+- Any future format variations
 """
 
 import sys
@@ -12,65 +15,67 @@ from pathlib import Path
 # Add scripts directory to path for imports
 sys.path.append(str(Path(__file__).parent / "scripts"))
 
-from scripts.process_prm_data import process_prm_data
+from scripts.unified_processor import process_prm_unified
 
 
 def main():
-    """Main CLI function."""
+    """Unified CLI with automatic format detection."""
     parser = argparse.ArgumentParser(
-        description="Process Skyline PRM export data with heavy peptide dilution analysis",
-        epilog="Example: python main.py data/input/skyline_data.csv data/input/dilutions.csv -o results.csv"
+        description="Unified Proteomics PRM Data Processor - Handles any Skyline export format",
+        epilog="Example: python main.py ms_data.csv concentrations.csv -o results.csv",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
-    parser.add_argument("skyline_file", help="Path to Skyline PRM export CSV file")
-    parser.add_argument("dilution_file", help="Path to peptide dilution concentration CSV file")
-    parser.add_argument("-o", "--output", default="prm_analysis_output.csv", 
+    parser.add_argument("ms_file", 
+                       help="Path to mass spectrometry data CSV (Skyline PRM export)")
+    parser.add_argument("concentration_file", 
+                       help="Path to peptide concentration/dilution CSV")
+    parser.add_argument("-o", "--output", 
+                       default="prm_analysis_output.csv", 
                        help="Output CSV file path (default: prm_analysis_output.csv)")
-    parser.add_argument("--version", action="version", version="PRM Processing v1.0.0")
+    parser.add_argument("--version", 
+                       action="version", 
+                       version="Unified PRM Processing v2.0.0")
     
     args = parser.parse_args()
     
     # Validate input files
-    skyline_path = Path(args.skyline_file)
-    dilution_path = Path(args.dilution_file)
+    ms_path = Path(args.ms_file)
+    conc_path = Path(args.concentration_file)
+    output_path = Path(args.output)
     
-    if not skyline_path.exists():
-        print(f"Error: Skyline data file not found: {skyline_path}")
+    if not ms_path.exists():
+        print(f"❌ Error: MS data file not found: {ms_path}")
         sys.exit(1)
     
-    if not dilution_path.exists():
-        print(f"Error: Dilution data file not found: {dilution_path}")
+    if not conc_path.exists():
+        print(f"❌ Error: Concentration data file not found: {conc_path}")
         sys.exit(1)
     
-    # Process the data
-    print(f"Processing {skyline_path} with dilution data from {dilution_path}")
-    print(f"Output will be saved to: {args.output}")
-    print("-" * 60)
+    # Header
+    print("="*70)
+    print("UNIFIED PROTEOMICS PRM DATA PROCESSING")
+    print("="*70)
+    print(f"📁 MS data: {ms_path.name}")
+    print(f"📁 Concentration data: {conc_path.name}")
+    print(f"💾 Output: {output_path}")
     
     try:
-        result_df = process_prm_data(str(skyline_path), str(dilution_path), args.output)
+        # Process using unified processor (auto-detects format)
+        result_df = process_prm_unified(str(ms_path), str(conc_path), str(output_path))
         
-        # Print summary
-        print(f"\n=== PROCESSING COMPLETE ===")
-        print(f"Input file: {skyline_path}")
-        print(f"Output file: {args.output}")
-        print(f"Shape: {result_df.shape[0]} rows × {result_df.shape[1]} columns")
-        print(f"Peptides processed: {result_df['peptide'].nunique()}")
-        print(f"Fragment ions: {result_df['fragment ion'].nunique()}")
-        if 'dilution' in result_df.columns:
-            print(f"Dilutions: {result_df['dilution'].nunique()}")
-        if 'replicate' in result_df.columns:
-            print(f"Replicates: {result_df['replicate'].nunique()}")
-        
-        # Check regression quality
-        if 'mean_r2' in result_df.columns:
-            mean_r2 = result_df['mean_r2'].mean()
-            print(f"Average R² across regressions: {mean_r2:.3f}")
-        
-        print("\nProcessing completed successfully!")
+        # Success message
+        print("\n" + "="*70)
+        print("✅ PROCESSING COMPLETE")
+        print("="*70)
+        print(f"📊 Output: {result_df.shape[0]} rows × {result_df.shape[1]} columns")
+        print(f"💾 Saved to: {output_path}")
+        print("\n✨ Processing completed successfully!\n")
         
     except Exception as e:
-        print(f"Error during processing: {e}")
+        print(f"\n❌ Error during processing: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

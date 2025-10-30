@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A comprehensive toolkit for processing Skyline PRM (Parallel Reaction Monitoring) export data with heavy peptide dilution schemes. Performs quantification analysis with regression modeling and quality control metrics.
+A comprehensive toolkit for processing Skyline PRM (Parallel Reaction Monitoring) export data. **Automatically detects and processes any format** - no manual configuration needed!
 
 ## 🚀 Quick Start
 
@@ -15,12 +15,15 @@ cd proteomics
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the example workflow
-python examples/heavy_1st_workflow.py
-
-# Or use the command-line interface
-python main.py data/input/skyline_data.csv data/input/dilutions.csv -o results.csv
+# Process ANY format with the unified CLI (auto-detects!)
+python main.py ms_data.csv concentrations.csv -o results.csv
 ```
+
+**That's it!** The system automatically:
+- 🔍 Detects your input format
+- 🎯 Routes to the appropriate pipeline
+- 📊 Processes and generates QC metrics
+- 💾 Saves results ready for analysis
 
 ## ✅ Recent Success: Heavy_1st Dataset Analysis
 
@@ -102,18 +105,26 @@ pip install -e ".[docs]"
 
 ## 💻 Usage
 
-### Command Line Interface
+### Unified Command Line Interface (Recommended)
+
+The **unified CLI automatically detects your format** - no separate workflows needed!
 
 ```bash
-# Basic usage
-python main.py skyline_data.csv dilution_data.csv
+# Process any format
+python main.py ms_data.csv concentrations.csv -o results.csv
 
-# Specify output file
-python main.py skyline_data.csv dilution_data.csv -o my_results.csv
+# Examples:
+# Heavy/Light paired peptides
+python main.py data/input/heavy_1st_expanded.csv data/input/peptide_dilution_conc.csv -o heavy_results.csv
+
+# JPT format
+python main.py data/input/JPT_1_3.csv data/input/JPT1-3_peptide_conc.csv -o jpt_results.csv
 
 # Get help
 python main.py --help
 ```
+
+**Format detection is fully automatic!** See [docs/UNIFIED_CLI_GUIDE.md](docs/UNIFIED_CLI_GUIDE.md) for details.
 
 ### Python API
 
