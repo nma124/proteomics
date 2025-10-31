@@ -1,0 +1,17 @@
+# Minimal production dependencies for web API
+# Use this for deployment to reduce build time and size
+
+# Core data processing
+pandas>=1.3.0,<3.0.0
+numpy>=1.21.0,<3.0.0
+
+# Machine learning
+scikit-learn>=1.0.0,<2.0.0
+
+# Web API
+fastapi>=0.104.0,<1.0.0
+uvicorn>=0.24.0,<1.0.0
+python-multipart>=0.0.6,<1.0.0
+
+# Plotting (if needed, otherwise comment out)
+# matplotlib>=3.5.0,<4.0.0
