@@ -183,6 +183,5 @@ cython_debug/
 web/node_modules/
 web/dist/
 web/.vite/
-web/package-lock.json
 api/uploads/
 api/results/
