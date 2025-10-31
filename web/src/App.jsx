@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Analytics from './Analytics'
 import './App.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
@@ -278,6 +279,13 @@ function App() {
                 </div>
               </div>
             </section>
+
+            {/* Analytics Section */}
+            {jobStatus?.status === 'completed' && (
+              <section className="analytics-wrapper">
+                <Analytics jobId={jobId} />
+              </section>
+            )}
           </>
         )}
       </main>
