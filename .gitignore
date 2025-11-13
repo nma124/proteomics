@@ -185,3 +185,4 @@ web/dist/
 web/.vite/
 api/uploads/
 api/results/
+.DS_Store

@@ -1,212 +1,149 @@
 # Proteomics PRM Data Processing
 
-[![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A comprehensive toolkit for processing Skyline PRM (Parallel Reaction Monitoring) export data. **Automatically detects and processes any format** - no manual configuration needed!
+Automated processing toolkit for Skyline PRM (Parallel Reaction Monitoring) export data with intelligent format detection and comprehensive statistical analysis.
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone the repository
-git clone <repository-url](https://github.com/nma124/proteomics>
+# Clone and install
+git clone https://github.com/nma124/proteomics.git
 cd proteomics
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Process ANY format with the unified CLI (auto-detects!)
-python main.py ms_data.csv concentrations.csv -o results.csv
+# Process your data (auto-detects format!)
+python main.py <ms_data.csv> <concentrations.csv> -o results.csv
 ```
 
-**That's it!** The system automatically:
-- 🔍 Detects your input format
-- 🎯 Routes to the appropriate pipeline
-- 📊 Processes and generates QC metrics
-- 💾 Saves results ready for analysis
+### What it does:
+- ✅ Automatically detects input format (Heavy/Light paired, JPT, single peptide)
+- ✅ Calculates area ratios and performs linear regression analysis
+- ✅ Generates quality control metrics (R², CV, Q-tests)
+- ✅ Outputs processed data ready for downstream analysis
 
-## ✅ Recent Success: Heavy_1st Dataset Analysis
+## 📊 Example Results
 
-**Input:** `heavy_1st_expanded_D0_op_AHS_3+_1+_2+_combined_w0.csv`  
-**Output:** `heavy_1st_processed_output.csv` (105 KB)
-
-### Key Results:
-- **📊 Data processed:** 624 rows → 220 rows (after filtering and analysis)
-- **🧬 Peptide analyzed:** AHSLNPDASGSSCSLAR (single peptide)
-- **📈 Fragment ions:** 11 different fragment ions
-- **🔬 Dilution series:** 8 concentration levels (D0-D7)
-- **🔄 Replicates:** 24 different replicate conditions
-- **📏 Average R²:** 0.692 (good linear correlation)
-
-### What the Analysis Did:
-1. **Area Ratio Calculation:** Computed ratios between light and heavy peptide peak areas
-2. **Dilution Series Analysis:** Merged data with concentration information
-3. **Linear Regression:** Fitted regression models for each fragment ion
-4. **Quality Metrics:** Generated R², gradients, intercepts, and statistical measures
-5. **Aggregation:** Calculated mean, standard deviation, and coefficient of variation for regression parameters
-
-### Output File Contains:
-- Area ratios for each dilution/fragment ion combination
-- Linear regression parameters (R², slope, intercept)
-- Quality control metrics (Q-tests, coefficients of variation)
-- Aggregated statistics across replicates
-
-The processed data is ready for downstream analysis, visualization, or quantification workflows. The average R² of 0.692 indicates reasonably good linear relationships between area ratios and heavy peptide concentrations.
+Processing a heavy peptide dilution series dataset:
+- **Input:** 624 MS measurements across 8 dilution levels (D0-D7)
+- **Output:** 220 rows with regression analysis and QC metrics
+- **Analysis:** Area ratio calculations, linear regression (R² = 0.692), statistical validation
+- **QC Metrics:** Coefficient of variation, Q-tests, replicate consistency checks
 
 ## 📁 Project Structure
 
 ```
 proteomics/
-├── 📜 README.md                 # This file
-├── 📜 requirements.txt          # Python dependencies
-├── 📜 setup.py                 # Installation script
-├── 📜 main.py                  # Command-line interface
-├── 📂 scripts/                 # Core processing modules
-│   ├── 📜 __init__.py
-│   ├── 📜 process_prm_data.py   # Main processing functions
-│   └── 📜 run_heavy_1st.py     # Heavy_1st specific runner
-├── 📂 data/
-│   ├── 📂 input/               # Input data files
-│   │   ├── 📄 heavy_1st_expanded_D0_op_AHS_3+_1+_2+_combined_w0.csv
-│   │   └── 📄 peptide_dilution_conc_peggy.csv
-│   ├── 📂 output/              # Processed results
-│   │   ├── 📄 heavy_1st_processed_output.csv
-│   │   └── 📄 Akin_PRM_heavy_di_expanded_AHS_3+only_rmHL0_output.csv
-│   └── 📂 raw/                 # Original raw data
-├── 📂 examples/                # Example workflows and tutorials
-│   ├── 📜 __init__.py
-│   └── 📜 heavy_1st_workflow.py # Complete workflow demonstration
-├── 📂 docs/                    # Documentation
-├── 📂 tests/                   # Unit tests
-├── 📂 config/                  # Configuration files
-└── 📂 notebooks/               # Jupyter analysis notebooks
+├── main.py              # ➡️ CLI entry point
+├── requirements.txt     # Python dependencies
+├── setup.py             # Package installation
+├── scripts/             # Core processing modules
+│   ├── unified_processor.py   # Format detection & routing
+│   ├── process_prm_data.py    # Heavy/Light processing
+│   └── process_jpt_data.py    # JPT format processing
+├── src/                 # Statistical analysis utilities
+├── data/                # Data directory (gitignored)
+├── docs/                # Documentation
+├── examples/            # Example workflows
+└── tests/               # Unit tests
 ```
 
 ## 🔧 Installation
 
-### Method 1: Direct Installation
 ```bash
-pip install -r requirements.txt
-```
+# Clone repository
+git clone https://github.com/nma124/proteomics.git
+cd proteomics
 
-### Method 2: Development Installation
-```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Optional: Install as package
 pip install -e .
 ```
 
-### Method 3: With Optional Dependencies
-```bash
-# Install with development tools
-pip install -e ".[dev]"
-
-# Install with documentation tools
-pip install -e ".[docs]"
-```
+**Requirements:** Python 3.9+, pandas, numpy, scikit-learn
 
 ## 💻 Usage
 
-### Unified Command Line Interface (Recommended)
-
-The **unified CLI automatically detects your format** - no separate workflows needed!
+### Basic Usage
 
 ```bash
-# Process any format
-python main.py ms_data.csv concentrations.csv -o results.csv
+python main.py <ms_data.csv> <concentrations.csv> -o <output.csv>
+```
 
-# Examples:
-# Heavy/Light paired peptides
-python main.py data/input/heavy_1st_expanded.csv data/input/peptide_dilution_conc.csv -o heavy_results.csv
+**Arguments:**
+- `ms_data.csv` - Skyline PRM export file
+- `concentrations.csv` - Peptide dilution concentrations
+- `-o, --output` - Output file path (optional, default: `prm_analysis_output.csv`)
 
-# JPT format
-python main.py data/input/JPT_1_3.csv data/input/JPT1-3_peptide_conc.csv -o jpt_results.csv
+### Examples
+
+```bash
+# Process heavy/light paired peptides
+python main.py heavy_1st_data.csv peptide_conc.csv -o results.csv
+
+# Process JPT format
+python main.py jpt_data.csv jpt_concentrations.csv -o jpt_results.csv
 
 # Get help
 python main.py --help
 ```
 
-**Format detection is fully automatic!** See [docs/UNIFIED_CLI_GUIDE.md](docs/UNIFIED_CLI_GUIDE.md) for details.
-
 ### Python API
 
 ```python
-from scripts.process_prm_data import process_prm_data
+from scripts.unified_processor import process_prm_unified
 
-# Process your data
-result_df = process_prm_data(
-    skyline_file="data/input/skyline_export.csv",
-    dilution_file="data/input/dilution_concentrations.csv",
+# Process data programmatically
+result_df = process_prm_unified(
+    ms_file="ms_data.csv",
+    concentration_file="concentrations.csv",
     output_file="results.csv"
 )
 
-# Access the processed DataFrame
 print(f"Processed {result_df.shape[0]} rows")
-print(f"Average R²: {result_df['mean_r2'].mean():.3f}")
 ```
 
-### Example Workflows
+## 📄 Input Data Format
 
-```bash
-# Run the complete heavy_1st workflow
-python examples/heavy_1st_workflow.py
+### MS Data File (Skyline PRM Export)
+Required columns: `Peptide`, `Protein`, `Replicate`, `Precursor Mz`, `Precursor Charge`, `Product Mz`, `Product Charge`, `Fragment Ion`, `Area`
 
-# Or as a module
-python -m examples.heavy_1st_workflow
-```
+### Concentration File
+Required format: `Peptides` column + dilution columns (`D0 (ng/mL)`, `D1 (ng/mL)`, ..., `D7 (ng/mL)`)
 
-## 📊 Input Data Format
+## 📈 Output
 
-### Skyline Export File
-Expected columns:
-- `Peptide`: Peptide sequence
-- `Protein`: Protein identifier
-- `Replicate`: Sample replicate name (with dilution info)
-- `Precursor Mz`: Precursor mass-to-charge ratio
-- `Precursor Charge`: Precursor charge state
-- `Product Mz`: Fragment ion mass-to-charge ratio
-- `Product Charge`: Fragment ion charge state
-- `Fragment Ion`: Fragment ion identifier
-- `Area`: Peak area
+Processed CSV file containing:
+- Area ratios (light/heavy peptides)
+- Linear regression metrics (R², slope, intercept)
+- Quality control statistics (CV, Q-tests)
+- Aggregated statistics across replicates
 
-### Dilution Concentration File
-Expected format:
-- `Peptides`: Peptide sequences (matching Skyline export)
-- `D1 (ng/mL)`, `D2 (ng/mL)`, ..., `D7 (ng/mL)`: Dilution concentrations
-- `D0 (ng/mL)`: Control/blank concentration
+## 🔬 Analysis Pipeline
 
-## 📈 Output Data
+1. **Format Detection** - Automatically identifies input format
+2. **Data Processing** - Calculates area ratios, filters outliers
+3. **Regression Analysis** - Fits linear models for concentration curves
+4. **QC Metrics** - Generates quality control statistics
+5. **Output Generation** - Saves processed data with all metrics
 
-The processed output contains:
+## 🔗 Additional Resources
 
-- **Original data**: Peptide, replicate, fragment ion information
-- **Area ratios**: Calculated ratios between light and heavy peptides
-- **Regression parameters**: R², slope, intercept for each fragment ion
-- **Quality metrics**: Statistical measures for regression quality
-- **Aggregated statistics**: Mean, std dev, coefficient of variation across replicates
-
-## 🧪 Analysis Pipeline
-
-1. **Data Loading**: Read Skyline export and dilution concentration files
-2. **Data Filtering**: Keep only groups with exactly 2 elements (light/heavy pairs)
-3. **Area Ratio Calculation**: Compute heavy/light area ratios
-4. **Concentration Mapping**: Merge with dilution concentrations
-5. **Linear Regression**: Fit models for area_ratio vs concentration
-6. **Quality Assessment**: Calculate R², Q-tests, coefficients of variation
-7. **Aggregation**: Summarize statistics across technical replicates
-
-## 🔍 Quality Control
-
-The pipeline includes several QC metrics:
-
-- **R² values**: Measure of linear fit quality
-- **Q-tests**: Outlier detection for regression parameters
-- **Coefficients of variation**: Measure of replicate consistency
-- **Data completeness**: Tracking of filtered vs retained data points
+- **Detailed CLI Guide**: See [docs/UNIFIED_CLI_GUIDE.md](docs/UNIFIED_CLI_GUIDE.md)
+- **Architecture Details**: See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)  
+- **Web Interface**: A web-based interface is currently under development for users who prefer a graphical interface
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE) for details.
 
-**Note**: This tool was developed for processing Skyline PRM export data in proteomics workflows. It has been tested with the heavy_1st dataset and similar experimental designs involving heavy peptide dilution series.
+## 👥 Contributing
 
-# proteomics
-Analysis of body-wide organ network transcriptome for different mouse strains
+This tool is designed for processing Skyline PRM export data in proteomics workflows. Contributions and issues are welcome via GitHub.
+
+---
+
+**Repository**: https://github.com/nma124/proteomics
